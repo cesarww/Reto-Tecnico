@@ -67,6 +67,7 @@ const EmpresaLista = () => {
       }
       setModalOpen(false)
       resetForm()
+      window.location.reload()
     } catch (error) {
       console.error('Error al guardar empresa:', error)
       setError(t('error_saving'))
