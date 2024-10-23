@@ -30,7 +30,11 @@ i18n
           all_fields_required: "All fields are required.",
           end_user:"End User",
           distributor:"Distributor",
-          wholesaler:"Wholesaler"
+          wholesaler:"Wholesaler",
+          are_you_sure_delete:"Are you sure you want to delete?",
+          confirm_delete: "Confirm delete",
+          cancel: "Cancel",
+          confirm: "Confirm"
         },
       },
       es: {
@@ -58,7 +62,11 @@ i18n
           all_fields_required: "Todos los campos son obligatorios.",
           end_user: "Usuario Final",
           distributor: "Distribuidor",
-          wholesaler:"Mayorista"
+          wholesaler:"Mayorista",
+          are_you_sure_delete: "¿Seguro que quieres eliminar?",
+          confirm_delete: "Confirmar",
+          cancel: "Cancelar",
+          confirm: "Confirmar"
         },
       },
     },
