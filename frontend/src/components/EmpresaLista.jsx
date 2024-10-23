@@ -1,44 +1,53 @@
-import React, { useState, useEffect } from 'react'
-import Axios from "axios"
-import { Table, Button, Modal, Form, Message } from 'semantic-ui-react'
+import React, { useState, useEffect } from 'react';
+import Axios from "axios";
+import { Table, Button, Modal, Form, Message } from 'semantic-ui-react';
+import { useTranslation } from 'react-i18next';
+import { tipoTraducciones } from '../translations/tipoTraducciones'; 
 
 const EmpresaLista = () => {
-  const [empresas, setEmpresas] = useState([])
-  const [modalOpen, setModalOpen] = useState(false)
-  const [selectedEmpresa, setSelectedEmpresa] = useState(null)
-  const [nombre, setNombre] = useState('')
-  const [fechaConstitucion, setFechaConstitucion] = useState('')
-  const [tipo, setTipo] = useState('')
-  const [comentarios, setComentarios] = useState('')
-  const [favorita, setFavorita] = useState(false)
-  const [error, setError] = useState('')
+  const { t, i18n } = useTranslation();
+  const [empresas, setEmpresas] = useState([]);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [selectedEmpresa, setSelectedEmpresa] = useState(null);
+  const [nombre, setNombre] = useState('');
+  const [fechaConstitucion, setFechaConstitucion] = useState('');
+  const [tipo, setTipo] = useState('');
+  const [comentarios, setComentarios] = useState('');
+  const [favorita, setFavorita] = useState(false);
+  const [error, setError] = useState('');
 
+  // Cargar el idioma desde localStorage al iniciar el componente
+  useEffect(() => {
+    const idiomaGuardado = localStorage.getItem('i18nextLng');
+    if (idiomaGuardado) {
+      i18n.changeLanguage(idiomaGuardado);
+    }
+  }, [i18n]);
 
-  //Funcion para obtener las empresas
+  // Obtener las empresas
   useEffect(() => {
     const fetchEmpresas = async () => {
       try {
-        const { data } = await Axios.get("http://localhost:4000/obtenerEmpresas")
-        // console.log("Empresas recibidas:", data)
+        const { data } = await Axios.get("http://localhost:4000/obtenerEmpresas");
         
         if (data.message && data.message === 'Sin empresas') {
-          setEmpresas([])
+          setEmpresas([]);
         } else {
-          setEmpresas(data)
+          setEmpresas(data);
         }
       } catch (error) {
         console.error("Error al obtener empresas:", error);
-        setError('Error al obtener empresas. Intente nuevamente.')
+        setError(t('error_fetching'));
       }
     };
     fetchEmpresas();
-  }, [])
+  }, [t]);
 
-  //Funcion para agregar y actualizar las empresas
+  // Función para agregar y actualizar empresas
   const handleSave = async () => {
     if (!nombre || !fechaConstitucion || !tipo) {
-      setError('Todos los campos son obligatorios.')
-      return
+      setError(t('all_fields_required'));
+      return;
     }
 
     try {
@@ -49,85 +58,92 @@ const EmpresaLista = () => {
         comentarios, 
         favorita: favorita ? 1 : 0 
       };
-      if (selectedEmpresa) { //Aqui utilice chatgpt para optimizar el modal
-        await Axios.put(`http://localhost:4000/actualizaEmpresas/${selectedEmpresa.id}`, nuevaEmpresa)
-        setEmpresas(empresas.map(empresa => (empresa.id === selectedEmpresa.id ? nuevaEmpresa : empresa)))
+      if (selectedEmpresa) {
+        await Axios.put(`http://localhost:4000/actualizaEmpresas/${selectedEmpresa.id}`, nuevaEmpresa);
+        setEmpresas(empresas.map(empresa => (empresa.id === selectedEmpresa.id ? nuevaEmpresa : empresa)));
       } else {
-        await Axios.post("http://localhost:4000/agregarEmpresas", nuevaEmpresa)
-        setEmpresas([...empresas, nuevaEmpresa])
+        await Axios.post("http://localhost:4000/agregarEmpresas", nuevaEmpresa);
+        setEmpresas([...empresas, nuevaEmpresa]);
       }
-      setModalOpen(false)
-      resetForm()
-      window.location.reload()
+      setModalOpen(false);
+      resetForm();
     } catch (error) {
       console.error('Error al guardar empresa:', error);
-      setError('Error al guardar la empresa. Intente nuevamente.')
+      setError(t('error_saving'));
     }
-  }
-
-  //Funcion para eliminar las empresas
-  const handleDelete = async (id) => {
-    try {
-      await Axios.delete(`http://localhost:4000/borrarEmpresas/${id}`)
-      setEmpresas(empresas.filter(empresa => empresa.id !== id))
-    } catch (error) {
-      console.error('Error al eliminar empresa:', error);
-      setError('Error al eliminar la empresa. Intente nuevamente.')
-    }
-  }
-
-  //Funcion para reiniciar los datos del formulario
-  const resetForm = () => {
-    setNombre('')
-    setFechaConstitucion('')
-    setTipo('')
-    setComentarios('')
-    setFavorita(false)
-    setError('')
-    setSelectedEmpresa(null)
   };
 
-  //Funcion para editar los datos de la empresa seleccionada
+  // Función para eliminar empresas
+  const handleDelete = async (id) => {
+    try {
+      await Axios.delete(`http://localhost:4000/borrarEmpresas/${id}`);
+      setEmpresas(empresas.filter(empresa => empresa.id !== id));
+    } catch (error) {
+      console.error('Error al eliminar empresa:', error);
+      setError(t('error_deleting'));
+    }
+  };
+
+  // Reiniciar los datos del formulario
+  const resetForm = () => {
+    setNombre('');
+    setFechaConstitucion('');
+    setTipo('');
+    setComentarios('');
+    setFavorita(false);
+    setError('');
+    setSelectedEmpresa(null);
+  };
+
+  // Editar los datos de la empresa seleccionada
   const handleEdit = (empresa) => {
-    setSelectedEmpresa(empresa)
-    setNombre(empresa.nombre)
-    setFechaConstitucion(empresa.fecha_constitucion.split('T')[0])
-    setTipo(empresa.tipo_empresa)
-    setComentarios(empresa.comentarios || '')
-    setFavorita(empresa.favorita === 1)
-    setModalOpen(true)
-  }
+    setSelectedEmpresa(empresa);
+    setNombre(empresa.nombre);
+    setFechaConstitucion(empresa.fecha_constitucion.split('T')[0]);
+    setTipo(empresa.tipo_empresa);
+    setComentarios(empresa.comentarios || '');
+    setFavorita(empresa.favorita === 1);
+    setModalOpen(true);
+  };
+
+  // Cambiar el idioma y guardarlo en localStorage
+  const cambiarIdioma = (idioma) => {
+    i18n.changeLanguage(idioma);
+    localStorage.setItem('i18nextLng', idioma); // Guarda el idioma seleccionado
+  };
 
   return (
     <div>
       <Button primary onClick={() => {
         resetForm();
         setModalOpen(true);
-      }}>Agregar Empresa</Button>
+      }}>{t('add_company')}</Button>
+      <Button onClick={() => cambiarIdioma('es')}>Español</Button>
+      <Button onClick={() => cambiarIdioma('en')}>English</Button>
       
       {empresas.length === 0 ? (
-        <p>No hay empresas registradas.</p>
+        <p>{t('no_companies')}</p>
       ) : (
         <Table celled>
           <Table.Header>
             <Table.Row>
-              <Table.HeaderCell>Nombre</Table.HeaderCell>
-              <Table.HeaderCell>Tipo de Empresa</Table.HeaderCell>
-              <Table.HeaderCell>Fecha de Constitución</Table.HeaderCell>
-              <Table.HeaderCell>Favorita</Table.HeaderCell>
-              <Table.HeaderCell>Acciones</Table.HeaderCell>
+              <Table.HeaderCell>{t('name')}</Table.HeaderCell>
+              <Table.HeaderCell>{t('company_type')}</Table.HeaderCell>
+              <Table.HeaderCell>{t('constitution_date')}</Table.HeaderCell>
+              <Table.HeaderCell>{t('favorite')}</Table.HeaderCell>
+              <Table.HeaderCell>{t('actions')}</Table.HeaderCell>
             </Table.Row>
           </Table.Header>
           <Table.Body>
             {empresas.map((empresa) => (
               <Table.Row key={empresa.id}>
                 <Table.Cell>{empresa.nombre}</Table.Cell>
-                <Table.Cell>{empresa.tipo_empresa}</Table.Cell>
+                <Table.Cell>{tipoTraducciones[empresa.tipo_empresa][i18n.language]}</Table.Cell>
                 <Table.Cell>{empresa.fecha_constitucion.split('T')[0]}</Table.Cell>
-                <Table.Cell>{empresa.favorita ? 'Sí' : 'No'}</Table.Cell>
+                <Table.Cell>{empresa.favorita ? t('yes') : t('no')}</Table.Cell>
                 <Table.Cell>
-                  <Button onClick={() => handleEdit(empresa)}>Editar</Button>
-                  <Button negative onClick={() => handleDelete(empresa.id)}>Eliminar</Button>
+                  <Button onClick={() => handleEdit(empresa)}>{t('edit')}</Button>
+                  <Button negative onClick={() => handleDelete(empresa.id)}>{t('delete')}</Button>
                 </Table.Cell>
               </Table.Row>
             ))}
@@ -136,43 +152,42 @@ const EmpresaLista = () => {
       )}
 
       <Modal open={modalOpen} onClose={() => {
-        resetForm() 
-        setModalOpen(false)
-        }}
-      >
-        <Modal.Header>{selectedEmpresa ? 'Editar Empresa' : 'Agregar Empresa'}</Modal.Header>
+        resetForm(); 
+        setModalOpen(false);
+      }}>
+        <Modal.Header>{selectedEmpresa ? t('edit_company') : t('add_company')}</Modal.Header>
         <Modal.Content>
           {error && <Message negative>{error}</Message>}
           <Form>
             <Form.Field>
-              <label>Nombre</label>
+              <label>{t('name')}</label>
               <input value={nombre} onChange={(e) => setNombre(e.target.value)} required />
             </Form.Field>
             <Form.Field>
-              <label>Fecha de Constitución</label>
+              <label>{t('constitution_date')}</label>
               <input type="date" value={fechaConstitucion} onChange={(e) => setFechaConstitucion(e.target.value)} required />
             </Form.Field>
             <Form.Field>
-              <label>Tipo de Empresa</label>
+              <label>{t('company_type')}</label>
               <select value={tipo} onChange={(e) => setTipo(e.target.value)} required>
-                <option value="">Selecciona un tipo</option>
-                <option value="Distribuidor">Distribuidor</option>
-                <option value="Mayorista">Mayorista</option>
-                <option value="Usuario final">Usuario final</option>
+                <option value="">{t('select_type')}</option>
+                <option value="Distribuidor">{t('distributor')}</option>
+                <option value="Mayorista">{t('wholesaler')}</option>
+                <option value="Usuario final">{t('end_user')}</option>
               </select>
             </Form.Field>
             <Form.Field>
-              <label>Comentarios</label>
+              <label>{t('comments')}</label>
               <textarea value={comentarios} onChange={(e) => setComentarios(e.target.value)} maxLength="1020"></textarea>
             </Form.Field>
             <Form.Field>
               <label>
                 <input type="checkbox" checked={favorita} onChange={(e) => setFavorita(e.target.checked)} />
-                Favorita
+                {t('favorite')}
               </label>
             </Form.Field>
             <Button type="button" onClick={handleSave} primary>
-              {selectedEmpresa ? 'Actualizar' : 'Guardar'}
+              {selectedEmpresa ? t('update') : t('save')}
             </Button>
           </Form>
         </Modal.Content>
@@ -181,4 +196,4 @@ const EmpresaLista = () => {
   );
 };
 
-export default EmpresaLista
+export default EmpresaLista;
