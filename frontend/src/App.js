@@ -1,6 +1,6 @@
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import EmpresaLista from './components/EmpresaLista';
+import React from 'react'
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
+import EmpresaLista from './components/EmpresaLista'
 import './translations/i18n'
 
 const App = () => {
@@ -13,4 +13,4 @@ const App = () => {
   );
 };
 
-export default App;
+export default App

@@ -1,53 +1,53 @@
-import React, { useState, useEffect } from 'react';
-import Axios from "axios";
-import { Table, Button, Modal, Form, Message } from 'semantic-ui-react';
-import { useTranslation } from 'react-i18next';
-import { tipoTraducciones } from '../translations/tipoTraducciones'; 
+import React, { useState, useEffect } from 'react'
+import Axios from "axios"
+import { Table, Button, Modal, Form, Message } from 'semantic-ui-react'
+import { useTranslation } from 'react-i18next'
+import { tipoTraducciones } from '../translations/tipoTraducciones';
 
 const EmpresaLista = () => {
-  const { t, i18n } = useTranslation();
-  const [empresas, setEmpresas] = useState([]);
-  const [modalOpen, setModalOpen] = useState(false);
-  const [selectedEmpresa, setSelectedEmpresa] = useState(null);
-  const [nombre, setNombre] = useState('');
-  const [fechaConstitucion, setFechaConstitucion] = useState('');
-  const [tipo, setTipo] = useState('');
-  const [comentarios, setComentarios] = useState('');
-  const [favorita, setFavorita] = useState(false);
-  const [error, setError] = useState('');
+  const { t, i18n } = useTranslation()
+  const [empresas, setEmpresas] = useState([])
+  const [modalOpen, setModalOpen] = useState(false)
+  const [selectedEmpresa, setSelectedEmpresa] = useState(null)
+  const [nombre, setNombre] = useState('')
+  const [fechaConstitucion, setFechaConstitucion] = useState('')
+  const [tipo, setTipo] = useState('')
+  const [comentarios, setComentarios] = useState('')
+  const [favorita, setFavorita] = useState(false)
+  const [error, setError] = useState('')
 
   // Cargar el idioma desde localStorage al iniciar el componente
   useEffect(() => {
-    const idiomaGuardado = localStorage.getItem('i18nextLng');
+    const idiomaGuardado = localStorage.getItem('i18nextLng')
     if (idiomaGuardado) {
-      i18n.changeLanguage(idiomaGuardado);
+      i18n.changeLanguage(idiomaGuardado)
     }
-  }, [i18n]);
+  }, [i18n])
 
   // Obtener las empresas
   useEffect(() => {
     const fetchEmpresas = async () => {
       try {
-        const { data } = await Axios.get("http://localhost:4000/obtenerEmpresas");
+        const { data } = await Axios.get("http://localhost:4000/obtenerEmpresas")
         
         if (data.message && data.message === 'Sin empresas') {
-          setEmpresas([]);
+          setEmpresas([])
         } else {
-          setEmpresas(data);
+          setEmpresas(data)
         }
       } catch (error) {
-        console.error("Error al obtener empresas:", error);
-        setError(t('error_fetching'));
+        console.error("Error al obtener empresas:", error)
+        setError(t('error_fetching'))
       }
     };
-    fetchEmpresas();
-  }, [t]);
+    fetchEmpresas()
+  }, [t])
 
   // Función para agregar y actualizar empresas
   const handleSave = async () => {
     if (!nombre || !fechaConstitucion || !tipo) {
-      setError(t('all_fields_required'));
-      return;
+      setError(t('all_fields_required'))
+      return
     }
 
     try {
@@ -57,66 +57,66 @@ const EmpresaLista = () => {
         tipo_empresa: tipo, 
         comentarios, 
         favorita: favorita ? 1 : 0 
-      };
-      if (selectedEmpresa) {
-        await Axios.put(`http://localhost:4000/actualizaEmpresas/${selectedEmpresa.id}`, nuevaEmpresa);
-        setEmpresas(empresas.map(empresa => (empresa.id === selectedEmpresa.id ? nuevaEmpresa : empresa)));
-      } else {
-        await Axios.post("http://localhost:4000/agregarEmpresas", nuevaEmpresa);
-        setEmpresas([...empresas, nuevaEmpresa]);
       }
-      setModalOpen(false);
-      resetForm();
+      if (selectedEmpresa) {
+        await Axios.put(`http://localhost:4000/actualizaEmpresas/${selectedEmpresa.id}`, nuevaEmpresa)
+        setEmpresas(empresas.map(empresa => (empresa.id === selectedEmpresa.id ? nuevaEmpresa : empresa)))
+      } else {
+        await Axios.post("http://localhost:4000/agregarEmpresas", nuevaEmpresa)
+        setEmpresas([...empresas, nuevaEmpresa])
+      }
+      setModalOpen(false)
+      resetForm()
     } catch (error) {
-      console.error('Error al guardar empresa:', error);
-      setError(t('error_saving'));
+      console.error('Error al guardar empresa:', error)
+      setError(t('error_saving'))
     }
   };
 
   // Función para eliminar empresas
   const handleDelete = async (id) => {
     try {
-      await Axios.delete(`http://localhost:4000/borrarEmpresas/${id}`);
-      setEmpresas(empresas.filter(empresa => empresa.id !== id));
+      await Axios.delete(`http://localhost:4000/borrarEmpresas/${id}`)
+      setEmpresas(empresas.filter(empresa => empresa.id !== id))
     } catch (error) {
-      console.error('Error al eliminar empresa:', error);
-      setError(t('error_deleting'));
+      console.error('Error al eliminar empresa:', error)
+      setError(t('error_deleting'))
     }
   };
 
   // Reiniciar los datos del formulario
   const resetForm = () => {
-    setNombre('');
-    setFechaConstitucion('');
-    setTipo('');
-    setComentarios('');
-    setFavorita(false);
-    setError('');
-    setSelectedEmpresa(null);
+    setNombre('')
+    setFechaConstitucion('')
+    setTipo('')
+    setComentarios('')
+    setFavorita(false)
+    setError('')
+    setSelectedEmpresa(null)
   };
 
   // Editar los datos de la empresa seleccionada
   const handleEdit = (empresa) => {
-    setSelectedEmpresa(empresa);
-    setNombre(empresa.nombre);
-    setFechaConstitucion(empresa.fecha_constitucion.split('T')[0]);
-    setTipo(empresa.tipo_empresa);
-    setComentarios(empresa.comentarios || '');
-    setFavorita(empresa.favorita === 1);
-    setModalOpen(true);
+    setSelectedEmpresa(empresa)
+    setNombre(empresa.nombre)
+    setFechaConstitucion(empresa.fecha_constitucion.split('T')[0])
+    setTipo(empresa.tipo_empresa)
+    setComentarios(empresa.comentarios || '')
+    setFavorita(empresa.favorita === 1)
+    setModalOpen(true)
   };
 
   // Cambiar el idioma y guardarlo en localStorage
   const cambiarIdioma = (idioma) => {
-    i18n.changeLanguage(idioma);
-    localStorage.setItem('i18nextLng', idioma); // Guarda el idioma seleccionado
-  };
+    i18n.changeLanguage(idioma)
+    localStorage.setItem('i18nextLng', idioma)
+  }
 
   return (
     <div>
       <Button primary onClick={() => {
-        resetForm();
-        setModalOpen(true);
+        resetForm()
+        setModalOpen(true)
       }}>{t('add_company')}</Button>
       <Button onClick={() => cambiarIdioma('es')}>Español</Button>
       <Button onClick={() => cambiarIdioma('en')}>English</Button>
@@ -193,7 +193,7 @@ const EmpresaLista = () => {
         </Modal.Content>
       </Modal>
     </div>
-  );
-};
+  )
+}
 
-export default EmpresaLista;
+export default EmpresaLista

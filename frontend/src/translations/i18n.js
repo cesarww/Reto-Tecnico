@@ -1,9 +1,8 @@
-// src/i18n.js
-import i18n from 'i18next';
-import { initReactI18next } from 'react-i18next';
+import i18n from 'i18next'
+import { initReactI18next } from 'react-i18next'
 
 i18n
-  .use(initReactI18next) // Pasa i18n a react-i18next
+  .use(initReactI18next)
   .init({
     resources: {
       en: {
@@ -32,7 +31,6 @@ i18n
           end_user:"End User",
           distributor:"Distributor",
           wholesaler:"Wholesaler"
-          // ... otras traducciones
         },
       },
       es: {
@@ -61,15 +59,14 @@ i18n
           end_user: "Usuario Final",
           distributor: "Distribuidor",
           wholesaler:"Mayorista"
-          // ... otras traducciones
         },
       },
     },
-    lng: "es", // Idioma por defecto
-    fallbackLng: "en", // Idioma de respaldo
+    lng: "es",
+    fallbackLng: "en",
     interpolation: {
-      escapeValue: false, // React ya se encarga de la protección contra XSS
+      escapeValue: false,
     },
   });
 
-export default i18n;
+export default i18n
