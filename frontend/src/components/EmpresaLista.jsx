@@ -49,7 +49,7 @@ const EmpresaLista = () => {
         comentarios, 
         favorita: favorita ? 1 : 0 
       };
-      if (selectedEmpresa) {
+      if (selectedEmpresa) { //Aqui utilice chatgpt para optimizar el modal
         await Axios.put(`http://localhost:4000/actualizaEmpresas/${selectedEmpresa.id}`, nuevaEmpresa)
         setEmpresas(empresas.map(empresa => (empresa.id === selectedEmpresa.id ? nuevaEmpresa : empresa)))
       } else {
