@@ -15,6 +15,10 @@ const EmpresaLista = () => {
   const [comentarios, setComentarios] = useState('')
   const [favorita, setFavorita] = useState(false)
   const [error, setError] = useState('')
+  
+  // Estado para el modal de confirmación de eliminación
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false)
+  const [empresaAEliminar, setEmpresaAEliminar] = useState(null)
 
   // Cargar el idioma desde localStorage al iniciar el componente
   useEffect(() => {
@@ -67,7 +71,7 @@ const EmpresaLista = () => {
       }
       setModalOpen(false)
       resetForm()
-      window.location.reload()
+      window.location.reload()  
     } catch (error) {
       console.error('Error al guardar empresa:', error)
       setError(t('error_saving'))
@@ -75,10 +79,13 @@ const EmpresaLista = () => {
   };
 
   // Función para eliminar empresas
-  const handleDelete = async (id) => {
+  const handleDelete = async () => {
     try {
-      await Axios.delete(`http://localhost:4000/borrarEmpresas/${id}`)
-      setEmpresas(empresas.filter(empresa => empresa.id !== id))
+      await Axios.delete(`http://localhost:4000/borrarEmpresas/${empresaAEliminar.id}`)
+      setEmpresas(empresas.filter(empresa => empresa.id !== empresaAEliminar.id))
+      setDeleteModalOpen(false)
+      setEmpresaAEliminar(null)
+      // Aquí puedes mostrar una notificación de éxito si lo prefieres
     } catch (error) {
       console.error('Error al eliminar empresa:', error)
       setError(t('error_deleting'))
@@ -106,6 +113,12 @@ const EmpresaLista = () => {
     setFavorita(empresa.favorita === 1)
     setModalOpen(true)
   };
+
+  // Abrir el modal de confirmación para eliminar
+  const openDeleteModal = (empresa) => {
+    setEmpresaAEliminar(empresa)
+    setDeleteModalOpen(true)
+  }
 
   // Cambiar el idioma y guardarlo en localStorage
   const cambiarIdioma = (idioma) => {
@@ -144,7 +157,7 @@ const EmpresaLista = () => {
                 <Table.Cell>{empresa.favorita ? t('yes') : t('no')}</Table.Cell>
                 <Table.Cell>
                   <Button onClick={() => handleEdit(empresa)}>{t('edit')}</Button>
-                  <Button negative onClick={() => handleDelete(empresa.id)}>{t('delete')}</Button>
+                  <Button negative onClick={() => openDeleteModal(empresa)}>{t('delete')}</Button>
                 </Table.Cell>
               </Table.Row>
             ))}
@@ -192,6 +205,17 @@ const EmpresaLista = () => {
             </Button>
           </Form>
         </Modal.Content>
+      </Modal>
+
+      <Modal open={deleteModalOpen} onClose={() => setDeleteModalOpen(false)}>
+        <Modal.Header>{t('confirm_delete')}</Modal.Header>
+        <Modal.Content>
+          <p>{t('are_you_sure_delete')}</p>
+        </Modal.Content>
+        <Modal.Actions>
+          <Button onClick={() => setDeleteModalOpen(false)}>{t('cancel')}</Button>
+          <Button negative onClick={handleDelete}>{t('confirm')}</Button>
+        </Modal.Actions>
       </Modal>
     </div>
   )
