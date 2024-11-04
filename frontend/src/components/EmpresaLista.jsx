@@ -85,7 +85,6 @@ const EmpresaLista = () => {
       setEmpresas(empresas.filter(empresa => empresa.id !== empresaAEliminar.id))
       setDeleteModalOpen(false)
       setEmpresaAEliminar(null)
-      // Aquí puedes mostrar una notificación de éxito si lo prefieres
     } catch (error) {
       console.error('Error al eliminar empresa:', error)
       setError(t('error_deleting'))
